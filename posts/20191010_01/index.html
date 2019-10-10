@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>最小限のSRPを組んでみる :: Kuro Tech Blog — 調べたもの置き場</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="description" content="from Unity 2019.2.7f2 LWRPのコードを見ながらやりたかったので、新規作成でLWRPのテンプレートプロジェクトを作成 SRPを構成する大きな要素は３つ Scriptable Render Pipeline Asset"/>
+<meta name="keywords" content=""/>
+<meta name="robots" content="noodp"/>
+<link rel="canonical" href="https://kurokuru.github.io/posts/20191010_01/" />
+
+
+<link rel="stylesheet" href="https://kurokuru.github.io/assets/style.css">
+
+  <link rel="stylesheet" href="https://kurokuru.github.io/assets/blue.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://kurokuru.github.io/img/apple-touch-icon-144-precomposed.png">
+
+<link rel="shortcut icon" href="https://kurokuru.github.io/img/favicon/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="最小限のSRPを組んでみる :: Kuro Tech Blog — 調べたもの置き場" />
+<meta name="twitter:description" content="from Unity 2019.2.7f2 LWRPのコードを見ながらやりたかったので、新規作成でLWRPのテンプレートプロジェクトを作成 SRPを構成する大きな要素は３つ Scriptable Render Pipeline Asset" />
+<meta name="twitter:site" content="https://kurokuru.github.io/" />
+<meta name="twitter:creator" content="" />
+<meta name="twitter:image" content="">
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="最小限のSRPを組んでみる :: Kuro Tech Blog — 調べたもの置き場">
+<meta property="og:description" content="from Unity 2019.2.7f2 LWRPのコードを見ながらやりたかったので、新規作成でLWRPのテンプレートプロジェクトを作成 SRPを構成する大きな要素は３つ Scriptable Render Pipeline Asset" />
+<meta property="og:url" content="https://kurokuru.github.io/posts/20191010_01/" />
+<meta property="og:site_name" content="最小限のSRPを組んでみる" />
+<meta property="og:image" content="">
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+<meta property="article:published_time" content="2019-10-10 10:47:13 &#43;0900 JST" />
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="">
+
+
+<div class="container">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Blog
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://kurokuru.github.io/posts/20191010_01/">最小限のSRPを組んでみる</a></h1>
+  <div class="post-meta">
+      
+    <span class="post-date">
+      2019-10-10
+    </span>
+    
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://kurokuru.github.io/tags/unity/">Unity</a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  <div class="post-content">
+    
+
+<p>from Unity 2019.2.7f2<br />
+LWRPのコードを見ながらやりたかったので、新規作成でLWRPのテンプレートプロジェクトを作成<br />
+SRPを構成する大きな要素は３つ</p>
+
+<ul>
+<li><p>Scriptable Render Pipeline Asset
+使用するSRPの設定情報を格納したアセット<br />
+RenderPipelineAssetクラスを継承して作成<br />
+レンダーパイプラインのGraphic設定を盛り込んでいく<br />
+アセットとして生成して、Project SettingsのGraphicsに設定することで<br />
+Unityがレンダーパイプラインを呼び出すようになる<br />
+ちなみに、これがNoneの場合はビルドインレンダーパイプラインが使われる。</p></li>
+
+<li><p>Scriptable Render Pipeline
+レンダーパイプライン本体<br />
+RenderPipelineクラスを継承して作る<br />
+Renderメソッドをオーバーライドすると、レンダリング時にUnityが呼んでくれる</p></li>
+
+<li><p>各種Shader
+注意点として、今までのシェーダー(Standardや自分で作ったShaderも含む)は全て使用できなくなる<br />
+そのため、レンダーパイプライン専用のカスタムシェーダーを自前で用意する必要がある
+既存のシェーダー資産の移行ついては後述するが、<br />
+基本的にはシェーダーにLightModeを指定するだけでとりあえず動く<br />
+(機能が足りない or 特殊なレンダーパイプラインじゃないかぎり)<br />
+なお、LWRPやHDRPにはStandardシェーダー相当の物が予め用意されている（Litシェーダー）</p></li>
+</ul>
+
+<p>ということで最小限のSRPを作る、今回はCustomRenderPipelineという名前で作成</p>
+
+<hr />
+
+<h1 id="customrenderpipelineasset">CustomRenderPipelineAsset</h1>
+
+<pre><code class="language-csharp">// CustomRenderPipelineAsset.cs
+#if UNITY_EDITOR
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEditor.ProjectWindowCallback;
+#endif
+using UnityEngine.Rendering;
+using UnityEngine;
+
+/// &lt;summary&gt;
+/// 何もしないカスタムレンダリングパイプライン設定
+/// &lt;/summary&gt;
+public class CustomRenderPipelineAsset : RenderPipelineAsset, ISerializationCallbackReceiver
+{
+  /// &lt;summary&gt;
+  /// 
+  /// &lt;/summary&gt;
+  [System.Diagnostics.CodeAnalysis.SuppressMessage(&quot;Microsoft.Perfomance&quot;, &quot;CA1812&quot;)]
+  internal class CreateCustomPipelineAsset : EndNameEditAction
+  {
+    public override void Action(int instanceId, string pathName, string resourceFile)
+    {
+      AssetDatabase.CreateAsset(Create(), pathName);
+    }
+  }
+
+  /// &lt;summary&gt;
+  /// メニューに出すやつ
+  /// &lt;/summary&gt;
+  [MenuItem(&quot;Assets/Create/Rendering/Custom Render Pipeline/Pipeline Asset&quot;, priority = CoreUtils.assetCreateMenuPriority1)]
+  static void CreateCustomPipeline()
+  {
+    ProjectWindowUtil.StartNameEditingIfProjectWindowExists(0, CreateInstance&lt;CreateCustomPipelineAsset&gt;(),
+      &quot;CustomRenderPipelineAsset.asset&quot;, null, null);
+  }
+
+  /// &lt;summary&gt;
+  /// アセット生成
+  /// &lt;/summary&gt;
+  /// &lt;returns&gt;&lt;/returns&gt;
+  public static CustomRenderPipelineAsset Create()
+  {
+    var instance = CreateInstance&lt;CustomRenderPipelineAsset&gt;();
+
+    return instance;
+  }
+
+
+  /// &lt;summary&gt;
+  /// 多分要らない(ISerializationCallbackReceiver)
+  /// &lt;/summary&gt;
+  public void OnAfterDeserialize()
+  {
+    
+  }
+
+  /// &lt;summary&gt;
+  /// 多分要らない(ISerializationCallbackReceiver)
+  /// &lt;/summary&gt;
+  public void OnBeforeSerialize()
+  {
+
+  }
+
+  /// &lt;summary&gt;
+  /// パイプラインの生成、ここでカスタムのパイプラインのインスタンスを作る
+  /// &lt;/summary&gt;
+  /// &lt;returns&gt;&lt;/returns&gt;
+  protected override RenderPipeline CreatePipeline()
+  {
+    return new CustomRenderPipeline(this);
+  }
+}
+</code></pre>
+
+<p>LWRPに倣ってISerializationCallbackReceiverインターフェースを実装しているが、今の所は多分必要ない<br />
+ActionメソッドのオーバーライドでUnityがレンダリングするときに必要なレンダリングパイプラインを生成する処理を書く</p>
+
+<hr />
+
+<h1 id="customrenderpipeline">CustomRenderPipeline</h1>
+
+<pre><code class="language-csharp">// CustomRenderPipeline.cs
+using System;
+using Unity.Collections;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using UnityEngine.Rendering.PostProcessing;
+using UnityEngine.Experimental.GlobalIllumination;
+using Lightmapping = UnityEngine.Experimental.GlobalIllumination.Lightmapping;
+using UnityEngine.Rendering;
+using UnityEngine;
+
+/// &lt;summary&gt;
+/// 何もしないカスタムレンダリングパイプライン
+/// &lt;/summary&gt;
+public sealed partial class CustomRenderPipeline : RenderPipeline
+{
+  /// &lt;summary&gt;
+  /// 
+  /// &lt;/summary&gt;
+  const string k_RenderCameraTag = &quot;Render Camera&quot;;
+
+  /// &lt;summary&gt;
+  /// コンストラクタ
+  /// &lt;/summary&gt;
+  /// &lt;param name=&quot;asset&quot;&gt;&lt;/param&gt;
+  public CustomRenderPipeline(CustomRenderPipelineAsset asset)
+  {
+
+  }
+
+  /// &lt;summary&gt;
+  /// レンダーコールバック
+  /// &lt;/summary&gt;
+  /// &lt;param name=&quot;context&quot;&gt;&lt;/param&gt;
+  /// &lt;param name=&quot;cameras&quot;&gt;&lt;/param&gt;
+  protected override void Render(ScriptableRenderContext context, Camera[] cameras)
+  {
+    // コンテキストの開始
+    BeginFrameRendering(context, cameras);
+
+    // 事前処理...
+    SortCameras(cameras);
+
+    // 全部のカメラをぐるぐる
+    foreach (Camera camera in cameras)
+    { // カメラ毎のレンダリング
+      BeginCameraRendering(context, camera);
+
+      RenderSingleCamera(context, camera);
+
+      EndCameraRendering(context, camera);
+    }
+
+    // コンテキストの終了
+    EndFrameRendering(context, cameras);
+  }
+
+  /// &lt;summary&gt;
+  /// カメラソート
+  /// &lt;/summary&gt;
+  /// &lt;param name=&quot;cameras&quot;&gt;&lt;/param&gt;
+  void SortCameras(Camera[] cameras)
+  {
+    Array.Sort(cameras, (lhs, rhs) =&gt; (int)(lhs.depth - rhs.depth)); // カメラのDepthでソートする（ビルドインパイプライン基準）
+  }
+
+  /// &lt;summary&gt;
+  /// カメラレンダリング
+  /// &lt;/summary&gt;
+  /// &lt;param name=&quot;context&quot;&gt;&lt;/param&gt;
+  /// &lt;param name=&quot;camera&quot;&gt;&lt;/param&gt;
+  public static void RenderSingleCamera(ScriptableRenderContext context, Camera camera)
+  {
+    context.SetupCameraProperties(camera);
+    if (!camera.TryGetCullingParameters(false, out var cullingParameters)) // カリングパラメータを取得？
+      return;
+
+#if UNITY_EDITOR
+    string tag = camera.name;
+#else
+    string tag = k_RenderCameraTag;
+#endif
+    CommandBuffer cmd = CommandBufferPool.Get(tag); // コマンドバッファを取得
+
+    using (new ProfilingSample(cmd, tag))
+    {
+        // カリング処理
+        CullingResults cullResults = new CullingResults();
+        cullResults = context.Cull(ref cullingParameters);
+
+        // レンダリングターゲットのバッファをクリア
+        cmd.ClearRenderTarget(true, false, Color.black);
+        context.ExecuteCommandBuffer(cmd); // コマンドバッファ実行
+
+        // Opaque(不透明オブジェクト)
+        SortingSettings sortingSettings = new SortingSettings(camera) { criteria = SortingCriteria.CommonOpaque };
+        var drawingSettings = new DrawingSettings(new ShaderTagId(&quot;CustomRenderPipeline&quot;), sortingSettings);
+        var filterSettings = new FilteringSettings(
+                            new RenderQueueRange(0, (int)RenderQueue.GeometryLast),
+                            camera.cullingMask
+                            );
+        // レンダリング
+        context.DrawRenderers(cullResults, ref drawingSettings, ref filterSettings);
+    }
+
+    // コマンドバッファのリリース
+    CommandBufferPool.Release(cmd);
+    // コンテキストをSubmit
+    context.Submit();
+  }
+}
+</code></pre>
+
+<p>コンテキストと全てのカメラが渡されるので、好きに描画して良い<br />
+描画に関してはコマンドバッファも取れるが、<br />
+ある程度使う機能をまとめたヘルパーが用意されているので、主にそれを利用する</p>
+
+<p>今回はOpaque（不透明オブジェクト）のみの対応
+不透明オブジェクトは通常「手前から奥」に描画すると効率が良いので、描画順をソートする</p>
+
+<p>SortingSettingsでcriteriaをCommonOpaqueにすると手前から奥にソートしてくれる設定が生成できる<br />
+これをDrawingSettingsに投げる事で描画に必要な設定が生成できる<br />
+このときに設定するShaderTagIdというのがシェーダー側で指定するLightModeと一致しなければならない<br />
+一致するLightModeのシェーダーパスが描画対象になる<br />
+（今回は1パスのみだが、LightModeを複数用意することでマルチパスレンダリングをすることができる）</p>
+
+<p>filterSettingsは描画対象になるマテリアルに設定しているRender Queueの範囲<br />
+（GeometryLast=2500）<br />
+カメラ側のカリングマスクも含めて描画するオブジェクトフィルタ設定を生成する</p>
+
+<p>context.DrawRenderersにカリング、描画設定、フィルタ設定を渡すことで対象のオブジェクトが描画される<br />
+この場合はRenderQueueが2500以下の&rdquo;CustomRenderPipeline&rdquo;と設定されたLightModeのシェーダーパスを手前から奥にDrawする</p>
+
+<hr />
+
+<h1 id="customunlitshader">CustomUnlitShader</h1>
+
+<pre><code class="language-C">// CustomUnlitShader.shader
+Shader &quot;CustomRenderPipeline/CustomUnlitShader&quot;
+{
+    Properties
+    {
+        _MainTex (&quot;Texture&quot;, 2D) = &quot;white&quot; {}
+    }
+    SubShader
+    {
+        Tags { &quot;RenderType&quot;=&quot;Opaque&quot; }
+        LOD 100
+
+        Pass
+        {
+			Tags { &quot;LightMode&quot;=&quot;CustomRenderPipeline&quot; }
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            // make fog work
+            #pragma multi_compile_fog
+
+            #include &quot;UnityCG.cginc&quot;
+
+            struct appdata
+            {
+                float4 vertex : POSITION;
+                float2 uv : TEXCOORD0;
+            };
+
+            struct v2f
+            {
+                float2 uv : TEXCOORD0;
+                UNITY_FOG_COORDS(1)
+                float4 vertex : SV_POSITION;
+            };
+
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
+
+            v2f vert (appdata v)
+            {
+                v2f o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                UNITY_TRANSFER_FOG(o,o.vertex);
+                return o;
+            }
+
+            fixed4 frag (v2f i) : SV_Target
+            {
+                // sample the texture
+                fixed4 col = tex2D(_MainTex, i.uv);
+                // apply fog
+                UNITY_APPLY_FOG(i.fogCoord, col);
+                return col;
+            }
+            ENDCG
+        }
+    }
+}
+
+</code></pre>
+
+<p>UnityのビルドインシェーダーのUnlitシェーダーに手を加えたもの<br />
+パスに&rdquo;LightMode&rdquo;=&ldquo;CustomRenderPipeline&rdquo;を追加するだけ</p>
+
+<p>これらを用意したら<br />
+Assets/Create/Rendering/Custom Render Pipeline/Pipeline Asset<br />
+でRender Pipeline Assetを生成して<br />
+Project SettingsのScriptable Render Pipeline Settingsに設定
+適当なマテリアルを作って、CustomUnlitShaderを指定すると<br />
+SRPを通したレンダリング結果がSceneに描画される</p>
+
+<p><img src="./image_01.jpg" alt="" /></p>
+
+  </div>
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2019 Powered by <a href="http://gohugo.io">Hugo</a></span>
+    
+        <span>:: Theme made by <a href="https://twitter.com/panr">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+<script src="https://kurokuru.github.io/assets/main.js"></script>
+<script src="https://kurokuru.github.io/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
