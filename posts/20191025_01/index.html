@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Addressable Assetsのダウンロードキャッシュ :: Kuro Tech Blog — 調べたもの置き場</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="description" content="※何度かやっているうちにプロジェクトを作り直したら、この現象は発生しなくなった。 おそらく2018.3.7f1から2019.2.7f2に移行し"/>
+<meta name="keywords" content=""/>
+<meta name="robots" content="noodp"/>
+<link rel="canonical" href="https://kurokuru.github.io/posts/20191025_01/" />
+
+
+<link rel="stylesheet" href="https://kurokuru.github.io/assets/style.css">
+
+  <link rel="stylesheet" href="https://kurokuru.github.io/assets/blue.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://kurokuru.github.io/img/apple-touch-icon-144-precomposed.png">
+
+<link rel="shortcut icon" href="https://kurokuru.github.io/img/favicon/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Addressable Assetsのダウンロードキャッシュ :: Kuro Tech Blog — 調べたもの置き場" />
+<meta name="twitter:description" content="※何度かやっているうちにプロジェクトを作り直したら、この現象は発生しなくなった。 おそらく2018.3.7f1から2019.2.7f2に移行し" />
+<meta name="twitter:site" content="https://kurokuru.github.io/" />
+<meta name="twitter:creator" content="" />
+<meta name="twitter:image" content="">
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Addressable Assetsのダウンロードキャッシュ :: Kuro Tech Blog — 調べたもの置き場">
+<meta property="og:description" content="※何度かやっているうちにプロジェクトを作り直したら、この現象は発生しなくなった。 おそらく2018.3.7f1から2019.2.7f2に移行し" />
+<meta property="og:url" content="https://kurokuru.github.io/posts/20191025_01/" />
+<meta property="og:site_name" content="Addressable Assetsのダウンロードキャッシュ" />
+<meta property="og:image" content="">
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+<meta property="article:published_time" content="2019-10-25 15:28:40 &#43;0900 JST" />
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="">
+
+
+<div class="container">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Blog
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://kurokuru.github.io/posts/20191025_01/">Addressable Assetsのダウンロードキャッシュ</a></h1>
+  <div class="post-meta">
+      
+    <span class="post-date">
+      2019-10-25
+    </span>
+    
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://kurokuru.github.io/tags/unity/">Unity</a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  <div class="post-content">
+    <p>※何度かやっているうちにプロジェクトを作り直したら、この現象は発生しなくなった。<br />
+おそらく2018.3.7f1から2019.2.7f2に移行した時に発生したと思われる。<br />
+下記以外にも色々な挙動不審な問題が発生したので、Addressable Assetsのバージョンを変更した場合は注意したほうがよさそう。 　
+他に遭遇した人の為にメモしておく。</p>
+
+<p>挙動をチェックしていたところ、どうも謎な挙動をしていたのでメモ。<br />
+というのも Addressables.LoadAssetAsync() とかでAssetBundleを開いていると、Caching.ClearCahce()が実際失敗しているのにTrueを返すっぽいのだ 　</p>
+
+<p>検証スクリプト</p>
+
+<pre><code class="language-csharp">// TestSprite.cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.UI;
+
+public class TestSprite : MonoBehaviour
+{
+    [SerializeField]
+    private AssetReference SpriteAsset = default;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        Addressables.LoadAssetAsync&lt;Sprite&gt;(SpriteAsset).Completed +=
+            op =&gt; GetComponent&lt;Image&gt;().sprite = op.Result;
+    }
+}
+</code></pre>
+
+<p>SpriteAssetにはRemoteLoadPathに設定しているグループの適当な画像を設定している。<br />
+接続先はLocalHostingからダウンロードしてくる</p>
+
+<pre><code class="language-csharp">// TestManager.cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using UniRx;
+using UniRx.Triggers;
+
+public class TestManager : MonoBehaviour
+{
+    [SerializeField]
+    Button btnClear = default;
+
+    void Start()
+    {
+        btnClear.OnClickAsObservable().Subscribe(x =&gt;
+        {
+            var res = Caching.ClearCache();
+            if (res)
+            {
+                Debug.Log( &quot;Clear cache!&quot; );
+            }
+            else
+            { // 失敗しているのに、こっちが呼ばれない
+                Debug.Log( &quot;Cache clear failed.&quot; );
+            }
+        });
+    }
+}
+</code></pre>
+
+<p>ボタンが押されるとキャッシュを削除するだけのスクリプト。</p>
+
+<p>当初、Addressable Assetのキャッシュ機構の挙動について調べていて、<br />
+AddressableAssetSettingsの&rdquo;Use Asset Bundle Cahce&rdquo;が有効の場合は<br />
+AssetBundleと一緒らしい（つまり内部的には UnityWebRequest.GetAssetBundle を使っているハズ）みたいなので<br />
+正常にキャッシュがクリアできるかどうか上記のスクリプトを試していた。<br />
+が、思うように削除されずアセットサーバーを落としてもAsset Bundleが読み込まれる始末。</p>
+
+<p>結論から言うと、Asset Bundleを使用しているシーンでキャッシュ削除しようとしていた為に<br />
+単純にAsset Bundleを開いている場合はキャッシュを削除出来なかっただけなのだが、<br />
+Caching.ClearCache()がずっとtrueを返していた為、これを検知することが出来なかった。</p>
+
+<p>Unity Forumsにも多分同じ事を投稿している人がいた。<br />
+<a href="https://forum.unity.com/threads/cache-wont-clear-at-first-app-start.667732/">Cache wont clear at first app start</a></p>
+
+<p>シーンを分けAddressables.LoadAssetAsyncする前にClearCacheを実行すると正常にキャッシュをクリアすることが出来た。<br />
+（サーバーを落とした状態で読み込みに失敗する）
+しかしこれはバグなのか、キャッシュクリアは違う方法を使わないといけないのか謎である。</p>
+
+  </div>
+  
+  <div class="pagination">
+    <div class="pagination__title">
+      <span
+        class="pagination__title-h">Read other posts</span>
+      <hr />
+    </div>
+    <div class="pagination__buttons">
+      
+      <span class="button previous">
+        <a href="https://kurokuru.github.io/posts/20191028_01/">
+          <span class="button__icon">←</span>
+          <span class="button__text">AssetReferenceTypeRestrictionが無くなっていた（とその行方）</span>
+        </a>
+      </span>
+      
+      
+      <span class="button next">
+        <a href="https://kurokuru.github.io/posts/20191010_01/">
+          <span class="button__text">最小限のSRPを組んでみる</span>
+          <span class="button__icon">→</span>
+        </a>
+      </span>
+      
+    </div>
+  </div>
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2019 Powered by <a href="http://gohugo.io">Hugo</a></span>
+    
+        <span>:: Theme made by <a href="https://twitter.com/panr">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+<script src="https://kurokuru.github.io/assets/main.js"></script>
+<script src="https://kurokuru.github.io/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

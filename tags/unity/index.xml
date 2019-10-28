@@ -6,10 +6,28 @@
     <description>Recent content in Unity on Kuro Tech Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Thu, 10 Oct 2019 10:47:13 +0900</lastBuildDate>
+    <lastBuildDate>Mon, 28 Oct 2019 15:41:23 +0900</lastBuildDate>
     
 	<atom:link href="https://kurokuru.github.io/tags/unity/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>AssetReferenceTypeRestrictionが無くなっていた（とその行方）</title>
+      <link>https://kurokuru.github.io/posts/20191028_01/</link>
+      <pubDate>Mon, 28 Oct 2019 15:41:23 +0900</pubDate>
+      
+      <guid>https://kurokuru.github.io/posts/20191028_01/</guid>
+      <description>Addressables 1.2.4で試しにAssetReferenceをタイプ縛りしようと 多くの記事で紹介されている AssetReferenceTypeRestriction を使ってみたところ無くなっていた。かなしい。</description>
+    </item>
+    
+    <item>
+      <title>Addressable Assetsのダウンロードキャッシュ</title>
+      <link>https://kurokuru.github.io/posts/20191025_01/</link>
+      <pubDate>Fri, 25 Oct 2019 15:28:40 +0900</pubDate>
+      
+      <guid>https://kurokuru.github.io/posts/20191025_01/</guid>
+      <description>※何度かやっているうちにプロジェクトを作り直したら、この現象は発生しなくなった。 おそらく2018.3.7f1から2019.2.7f2に移行し</description>
+    </item>
     
     <item>
       <title>最小限のSRPを組んでみる</title>
