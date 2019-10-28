@@ -6,7 +6,7 @@
   
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<meta name="description" content="Addressables 1.2.4で試しにAssetReferenceをタイプ縛りしようと 多くの記事で紹介されている AssetReferenceTypeRestriction を使ってみたところ無くなっていた。かなしい。"/>
+<meta name="description" content="Addressables 1.2.4で試しにAssetReferenceをタイプ縛りしようと 多くの記事で紹介されている AssetReferenceTypeRestriction を使ってみたところ無くなっていた。 かなしい。"/>
 <meta name="keywords" content=""/>
 <meta name="robots" content="noodp"/>
 <link rel="canonical" href="https://kurokuru.github.io/posts/20191028_01/" />
@@ -29,7 +29,7 @@
 
 <meta name="twitter:card" content="summary" />
 <meta name="twitter:title" content="AssetReferenceTypeRestrictionが無くなっていた（とその行方） :: Kuro Tech Blog — 調べたもの置き場" />
-<meta name="twitter:description" content="Addressables 1.2.4で試しにAssetReferenceをタイプ縛りしようと 多くの記事で紹介されている AssetReferenceTypeRestriction を使ってみたところ無くなっていた。かなしい。" />
+<meta name="twitter:description" content="Addressables 1.2.4で試しにAssetReferenceをタイプ縛りしようと 多くの記事で紹介されている AssetReferenceTypeRestriction を使ってみたところ無くなっていた。 かなしい。" />
 <meta name="twitter:site" content="https://kurokuru.github.io/" />
 <meta name="twitter:creator" content="" />
 <meta name="twitter:image" content="">
@@ -38,7 +38,7 @@
 <meta property="og:locale" content="en" />
 <meta property="og:type" content="article" />
 <meta property="og:title" content="AssetReferenceTypeRestrictionが無くなっていた（とその行方） :: Kuro Tech Blog — 調べたもの置き場">
-<meta property="og:description" content="Addressables 1.2.4で試しにAssetReferenceをタイプ縛りしようと 多くの記事で紹介されている AssetReferenceTypeRestriction を使ってみたところ無くなっていた。かなしい。" />
+<meta property="og:description" content="Addressables 1.2.4で試しにAssetReferenceをタイプ縛りしようと 多くの記事で紹介されている AssetReferenceTypeRestriction を使ってみたところ無くなっていた。 かなしい。" />
 <meta property="og:url" content="https://kurokuru.github.io/posts/20191028_01/" />
 <meta property="og:site_name" content="AssetReferenceTypeRestrictionが無くなっていた（とその行方）" />
 <meta property="og:image" content="">
@@ -105,7 +105,9 @@
 
   <div class="post-content">
     <p>Addressables 1.2.4で試しにAssetReferenceをタイプ縛りしようと<br />
-多くの記事で紹介されている AssetReferenceTypeRestriction を使ってみたところ無くなっていた。かなしい。</p>
+多くの記事で紹介されている AssetReferenceTypeRestriction を使ってみたところ無くなっていた。<br />
+かなしい。<br />
+Addressable AssetはPreviewが外れたばかりなので古い情報やそもそも情報が少ない。</p>
 
 <p>とりあえずチェンジログを調べたら、<br />
 <img src="./image_01.jpg" alt="" />
@@ -126,8 +128,26 @@ private AssetReferenceT&lt;Sprite&gt; sprite = default;
 <p>正解はこう。<br />
 まぁAssetReference&lt;void&gt;とかAssetReference&lt;default&gt;<br />
 みたいな書き方は出来ないのでしょうがないか。<br />
-AssetReferenceは単独の型だけ指定するとは限らないしね（複数の型を受け取る使い方する人いるんだろうか）<br />
+AssetReferenceは単独の型だけ指定するとは限らないしね<br />
+（複数の型を受け取る使い方する人いるんだろうか）<br />
 しかしクラス追加するなら、チェンジログに書いててほしいところ・・・。</p>
+
+<p>ちなみに、ジェネリック型はそのままではInspector上に表示されないので<br />
+Inspector上から指定したい場合は、</p>
+
+<pre><code class="language-csharp">[System.Serializable]
+public class AssetReferenceSprite : AssetReferenceT&lt;Sprite&gt;
+{
+    public AssetReferenceSprite(string guid) : base(guid) { }
+}
+
+[SerializeField]
+private AssetReferenceSprite model = default;
+</code></pre>
+
+<p>としないといけない。<br />
+というか AssetReference はそのような使い方しかしないので、<br />
+事実上このコードが必須になるんだけど・・・きれいとは一体🤨</p>
 
   </div>
   
