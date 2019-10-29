@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Addressable Assetsで大量のbundleファイルをDownloadDependenciesすると死ぬトラップ :: Kuro Tech Blog — 調べたもの置き場</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="description" content="Pack Separatelyを使うときは注意だね😉って話。 基本的にAddressable AssetsはAssets Group単位で.bundleフ"/>
+<meta name="keywords" content=""/>
+<meta name="robots" content="noodp"/>
+<link rel="canonical" href="https://kurokuru.github.io/posts/20191029_02/" />
+
+
+<link rel="stylesheet" href="https://kurokuru.github.io/assets/style.css">
+
+  <link rel="stylesheet" href="https://kurokuru.github.io/assets/blue.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://kurokuru.github.io/img/apple-touch-icon-144-precomposed.png">
+
+<link rel="shortcut icon" href="https://kurokuru.github.io/img/favicon/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Addressable Assetsで大量のbundleファイルをDownloadDependenciesすると死ぬトラップ :: Kuro Tech Blog — 調べたもの置き場" />
+<meta name="twitter:description" content="Pack Separatelyを使うときは注意だね😉って話。 基本的にAddressable AssetsはAssets Group単位で.bundleフ" />
+<meta name="twitter:site" content="https://kurokuru.github.io/" />
+<meta name="twitter:creator" content="" />
+<meta name="twitter:image" content="">
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Addressable Assetsで大量のbundleファイルをDownloadDependenciesすると死ぬトラップ :: Kuro Tech Blog — 調べたもの置き場">
+<meta property="og:description" content="Pack Separatelyを使うときは注意だね😉って話。 基本的にAddressable AssetsはAssets Group単位で.bundleフ" />
+<meta property="og:url" content="https://kurokuru.github.io/posts/20191029_02/" />
+<meta property="og:site_name" content="Addressable Assetsで大量のbundleファイルをDownloadDependenciesすると死ぬトラップ" />
+<meta property="og:image" content="">
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+<meta property="article:published_time" content="2019-10-29 19:21:12 &#43;0900 JST" />
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="">
+
+<script src="https://www.gstatic.com/firebasejs/7.2.2/firebase-app.js"></script>
+
+
+<script src="https://www.gstatic.com/firebasejs/7.2.2/firebase-analytics.js"></script>
+
+<script>
+  
+  var firebaseConfig = {
+    apiKey: "AIzaSyCPRh0hpTrjNFy9Cku23URwPTEtvjw5yLQ",
+    authDomain: "kuro-tech-blog.firebaseapp.com",
+    databaseURL: "https://kuro-tech-blog.firebaseio.com",
+    projectId: "kuro-tech-blog",
+    storageBucket: "kuro-tech-blog.appspot.com",
+    messagingSenderId: "574119960704",
+    appId: "1:574119960704:web:9749216e76506d6e6e0665",
+    measurementId: "G-201RM96GWT"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
+
+
+<div class="container">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Blog
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://kurokuru.github.io/posts/20191029_02/">Addressable Assetsで大量のbundleファイルをDownloadDependenciesすると死ぬトラップ</a></h1>
+  <div class="post-meta">
+      
+    <span class="post-date">
+      2019-10-29
+    </span>
+    
+    
+  </div>
+
+  
+
+  
+
+  <div class="post-content">
+    <p>Pack Separatelyを使うときは注意だね😉って話。<br />
+基本的にAddressable AssetsはAssets Group単位で.bundleファイルになるが、<br />
+Assets GroupのSettingsのBundle Modeで Pack Separately を設定するとAsset単位で<br />
+.bundleを生成してくれる。<br />
+まとめるか/分けるかは開発時の運用次第だが、まとめるとデータ更新の際に無駄なデータまで更新する必要があるため<br />
+1Asset=1ファイルとするAssetBundle運用も結構存在する。</p>
+
+<p>ここでふと気になって実験してみたら、見事に引っかかったのでメモしておく。<br />
+結論から言うと、RemoteにあるAssetとDownloadDependenciesとかで全Assetを読み込もうとすると片っ端から<br />
+一気にSendWebRequestしてしうまうので、大量すぎるとネットワークが切断されて動かなくなる。<br />
+<img src="./image_01.jpg" alt="" />
+こんな感じのやつをPack Separatelyで1ファイル=1Assetにして<br />
+DownloadDependenciesAsync(&ldquo;preload&rdquo;)とかすると<br />
+<img src="./image_02.jpg" alt="" />
+こんな感じで一気にSendWebRequestしてConnection Lostしてしまう🤮</p>
+
+<p>多分コード的にはUnityEngine.ResourceManagement.ResourceProvidersのAssetBundleResource<br />
+を使ってると思うんだけど、
+<img src="./image_03.jpg" alt="" />
+という風に問答無用でSendWebRequestしちゃってるので詰まって死ぬ。<br />
+なのでPack Separatelyしたときはラベル指定でDownloadDependenciesするようなことは避けた方がいい。<br />
+ていうか1ロードにせよ、それの依存関係の数とか把握してないのでPack Separately自体が割と危険なので使えないかなあ・・・。<br />
+こういうバグは中々発生条件が微妙だったりして気づかない。</p>
+
+<p>まぁ原理的にはPack Separately関係なく発生しうるバグなので根本から直した方がいいんだけど・・・🤔<br />
+自分のコードだったらasync/awaitとか使えそうなんだけどこれどうしたものか😅<br />
+カスタムできるのかなぁ？</p>
+
+  </div>
+  
+  <div class="pagination">
+    <div class="pagination__title">
+      <span
+        class="pagination__title-h">Read other posts</span>
+      <hr />
+    </div>
+    <div class="pagination__buttons">
+      
+      
+      <span class="button next">
+        <a href="https://kurokuru.github.io/posts/20191029_01/">
+          <span class="button__text">Addressable Assetsで事前ロードしたい</span>
+          <span class="button__icon">→</span>
+        </a>
+      </span>
+      
+    </div>
+  </div>
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2019 Powered by <a href="http://gohugo.io">Hugo</a></span>
+    
+        <span>:: Theme made by <a href="https://twitter.com/panr">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+<script src="https://kurokuru.github.io/assets/main.js"></script>
+<script src="https://kurokuru.github.io/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
