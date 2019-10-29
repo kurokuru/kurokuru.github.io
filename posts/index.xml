@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Kuro Tech Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Mon, 28 Oct 2019 15:41:23 +0900</lastBuildDate>
+    <lastBuildDate>Tue, 29 Oct 2019 11:06:23 +0900</lastBuildDate>
     
 	<atom:link href="https://kurokuru.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Addressable Assetsで事前ロードしたい</title>
+      <link>https://kurokuru.github.io/posts/20191029_01/</link>
+      <pubDate>Tue, 29 Oct 2019 11:06:23 +0900</pubDate>
+      
+      <guid>https://kurokuru.github.io/posts/20191029_01/</guid>
+      <description>したかった人生だった。from Addressables 1.2.4 調べると Addressables.PreloadDependencies というのを使うらしいのだが メソッドが存在しない🤬🤬🤬🤬 てか公式のドキュメントにも って思いっきり書</description>
+    </item>
     
     <item>
       <title>AssetReferenceTypeRestrictionが無くなっていた（とその行方）</title>
