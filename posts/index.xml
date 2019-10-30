@@ -6,10 +6,19 @@
     <description>Recent content in Posts on Kuro Tech Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Tue, 29 Oct 2019 19:21:12 +0900</lastBuildDate>
+    <lastBuildDate>Wed, 30 Oct 2019 11:44:15 +0900</lastBuildDate>
     
 	<atom:link href="https://kurokuru.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Addressable AssetsのProviderをカスタムする</title>
+      <link>https://kurokuru.github.io/posts/20191030_01/</link>
+      <pubDate>Wed, 30 Oct 2019 11:44:15 +0900</pubDate>
+      
+      <guid>https://kurokuru.github.io/posts/20191030_01/</guid>
+      <description>前回の記事で、大量にSendWebRequestして爆死する問題で、 ここら辺のコードをカスタマイズできないのかと方法を探っていた。 というかそ</description>
+    </item>
     
     <item>
       <title>Addressable Assetsで大量のbundleファイルをDownloadDependenciesすると死ぬトラップ</title>

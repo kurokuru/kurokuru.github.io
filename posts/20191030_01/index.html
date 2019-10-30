@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Addressable AssetsのProviderをカスタムする :: Kuro Tech Blog — 調べたもの置き場</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="description" content="前回の記事で、大量にSendWebRequestして爆死する問題で、 ここら辺のコードをカスタマイズできないのかと方法を探っていた。 というかそ"/>
+<meta name="keywords" content=""/>
+<meta name="robots" content="noodp"/>
+<link rel="canonical" href="https://kurokuru.github.io/posts/20191030_01/" />
+
+
+<link rel="stylesheet" href="https://kurokuru.github.io/assets/style.css">
+
+  <link rel="stylesheet" href="https://kurokuru.github.io/assets/blue.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://kurokuru.github.io/img/apple-touch-icon-144-precomposed.png">
+
+<link rel="shortcut icon" href="https://kurokuru.github.io/img/favicon/blue.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Addressable AssetsのProviderをカスタムする :: Kuro Tech Blog — 調べたもの置き場" />
+<meta name="twitter:description" content="前回の記事で、大量にSendWebRequestして爆死する問題で、 ここら辺のコードをカスタマイズできないのかと方法を探っていた。 というかそ" />
+<meta name="twitter:site" content="https://kurokuru.github.io/" />
+<meta name="twitter:creator" content="" />
+<meta name="twitter:image" content="">
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Addressable AssetsのProviderをカスタムする :: Kuro Tech Blog — 調べたもの置き場">
+<meta property="og:description" content="前回の記事で、大量にSendWebRequestして爆死する問題で、 ここら辺のコードをカスタマイズできないのかと方法を探っていた。 というかそ" />
+<meta property="og:url" content="https://kurokuru.github.io/posts/20191030_01/" />
+<meta property="og:site_name" content="Addressable AssetsのProviderをカスタムする" />
+<meta property="og:image" content="">
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+<meta property="article:published_time" content="2019-10-30 11:44:15 &#43;0900 JST" />
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="">
+
+<script src="https://www.gstatic.com/firebasejs/7.2.2/firebase-app.js"></script>
+
+
+<script src="https://www.gstatic.com/firebasejs/7.2.2/firebase-analytics.js"></script>
+
+<script>
+  
+  var firebaseConfig = {
+    apiKey: "AIzaSyCPRh0hpTrjNFy9Cku23URwPTEtvjw5yLQ",
+    authDomain: "kuro-tech-blog.firebaseapp.com",
+    databaseURL: "https://kuro-tech-blog.firebaseio.com",
+    projectId: "kuro-tech-blog",
+    storageBucket: "kuro-tech-blog.appspot.com",
+    messagingSenderId: "574119960704",
+    appId: "1:574119960704:web:9749216e76506d6e6e0665",
+    measurementId: "G-201RM96GWT"
+  };
+  
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+</script>
+
+
+<div class="container">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Blog
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://kurokuru.github.io/posts/20191030_01/">Addressable AssetsのProviderをカスタムする</a></h1>
+  <div class="post-meta">
+      
+    <span class="post-date">
+      2019-10-30
+    </span>
+    
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://kurokuru.github.io/tags/unity/">Unity</a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  <div class="post-content">
+    <p><a href="https://kurokuru.github.io/posts/20191029_02/">前回の記事</a>で、大量にSendWebRequestして爆死する問題で、<br />
+ここら辺のコードをカスタマイズできないのかと方法を探っていた。<br />
+というかそもそもの主目的はAddressable Assetsに暗号化機能を組み込む事だったりもするので、<br />
+やっと当初の目的にたどり着いたとも言える。<br />
+とりあえず同じ挙動をするようにしたカスタム版のコードに差し替えてみる。</p>
+
+<p>さて、Addressable Assetsがどういう仕組みなのかはQiitaの</p>
+
+<p><a href="https://qiita.com/k7a/items/b4fd298bcb64dc968ad1">Addressable Assets Systemを完全に理解する</a></p>
+
+<p>あたりに詳しく書いてるけど、AddressableにはResrouceManagerという物がセットで付いてくる。<br />
+Addressableそれ自体はユーザーコードで指定されたラベルとかアセット名をカタログを見ながら<br />
+ResourceLocation(実際のパス)に変換してResourceManagerにぶん投げている。<br />
+ResrouceManagerはそのAssetがどういう方法で読み込むべきかを判別して<br />
+それを各Providerにぶん投げる。<br />
+対応するProviderはAssetのロード方法（ファイルから読み込むとかネットワークから読み込むとか）を知っているので<br />
+実際のロード処理を行う。LoadAssetAsyncとかで返ってくるAsyncOperationはこのProviderが生成したもの。</p>
+
+<p>で、実際にAssetBundleで使われているProviderは何かというと<br />
+UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider<br />
+というクラスである。これのProvideあたりをゴニョゴニョカスタマイズ出来ればいいんだけど当然DLLなので編集することができない。<br />
+今回はカスタムProviderということで、AssetBundleProviderと同じ動きをするProviderを作成して差し替えてみる。<br />
+以下の2つのクラスが依存しているけど、internal classで外部からは呼べないのでこれもカスタム版を用意しなければならない。<br />
+- AssetBundleResource<br />
+- ResourceManagerConfig</p>
+
+<p>今回は逆アセンブルしたコードをベースに3つのクラスを用意した。↑のクラス名を書き換えてるだけ。<br />
+- CustomAssetBundleProvider.cs
+<script src="https://gist.github.com/kurokuru/6989d71ce9e946a86f244720680db4a1.js"></script></p>
+
+<ul>
+<li><p>CustomAssetBundleResource.cs
+<script src="https://gist.github.com/kurokuru/4152b55dea777ea7cecd1c74195ef175.js"></script></p></li>
+
+<li><p>CustomResourceManagerConfig.cs
+<script src="https://gist.github.com/kurokuru/b89366e2f98532c8501ebc7a8da8eff4.js"></script></p></li>
+</ul>
+
+<p>これらを用意したら、AddreesableがCustomAssetBundleProviderを使うように設定を変更する。<br />
+各Packed AssetsのAddressableAssetSettingsを開いて、Asset Bundle ProviderをCustomAssetBundleProviderに変更して Build Player Contentする。<br />
+<img src="./image_01.jpg" alt="" />
+これでブレークポイントを張ると、カスタム版のProviderが呼ばれているのが確認できる。</p>
+
+  </div>
+  
+  <div class="pagination">
+    <div class="pagination__title">
+      <span
+        class="pagination__title-h">Read other posts</span>
+      <hr />
+    </div>
+    <div class="pagination__buttons">
+      
+      
+      <span class="button next">
+        <a href="https://kurokuru.github.io/posts/20191029_02/">
+          <span class="button__text">Addressable Assetsで大量のbundleファイルをDownloadDependenciesすると死ぬトラップ</span>
+          <span class="button__icon">→</span>
+        </a>
+      </span>
+      
+    </div>
+  </div>
+  
+
+  
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2019 Powered by <a href="http://gohugo.io">Hugo</a></span>
+    
+        <span>:: Theme made by <a href="https://twitter.com/panr">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+<script src="https://kurokuru.github.io/assets/main.js"></script>
+<script src="https://kurokuru.github.io/assets/prism.js"></script>
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>
