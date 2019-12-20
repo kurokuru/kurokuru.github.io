@@ -6,10 +6,19 @@
     <description>Recent content on Kuro Tech Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Tue, 17 Dec 2019 10:00:08 +0900</lastBuildDate>
+    <lastBuildDate>Thu, 19 Dec 2019 15:19:35 +0900</lastBuildDate>
     
 	<atom:link href="https://kurokuru.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>勉強目的のためにサクッとRancherを構築する</title>
+      <link>https://kurokuru.github.io/posts/20191219_01/</link>
+      <pubDate>Thu, 19 Dec 2019 15:19:35 +0900</pubDate>
+      
+      <guid>https://kurokuru.github.io/posts/20191219_01/</guid>
+      <description>勉強用途でサクッとRancherを構築する時のメモ🙄 仮想マシンの構築 とにかく手軽にかつ簡単にやりたかったので、Virtual BoxやVM Wh</description>
+    </item>
     
     <item>
       <title>ソースコード検索エンジン Sourcetrail のOSS化</title>

@@ -6,10 +6,37 @@
     <description>Recent content in Tags on Kuro Tech Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>ja</language>
-    <lastBuildDate>Tue, 17 Dec 2019 10:00:08 +0900</lastBuildDate>
+    <lastBuildDate>Thu, 19 Dec 2019 15:19:35 +0900</lastBuildDate>
     
 	<atom:link href="https://kurokuru.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Docker</title>
+      <link>https://kurokuru.github.io/tags/docker/</link>
+      <pubDate>Thu, 19 Dec 2019 15:19:35 +0900</pubDate>
+      
+      <guid>https://kurokuru.github.io/tags/docker/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Kubernetes</title>
+      <link>https://kurokuru.github.io/tags/kubernetes/</link>
+      <pubDate>Thu, 19 Dec 2019 15:19:35 +0900</pubDate>
+      
+      <guid>https://kurokuru.github.io/tags/kubernetes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Rancher</title>
+      <link>https://kurokuru.github.io/tags/rancher/</link>
+      <pubDate>Thu, 19 Dec 2019 15:19:35 +0900</pubDate>
+      
+      <guid>https://kurokuru.github.io/tags/rancher/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>Tools</title>

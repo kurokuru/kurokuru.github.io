@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Docker on Kuro Tech Blog</title>
+    <link>https://kurokuru.github.io/tags/docker/</link>
+    <description>Recent content in Docker on Kuro Tech Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>ja</language>
+    <lastBuildDate>Thu, 19 Dec 2019 15:19:35 +0900</lastBuildDate>
+    
+	<atom:link href="https://kurokuru.github.io/tags/docker/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>勉強目的のためにサクッとRancherを構築する</title>
+      <link>https://kurokuru.github.io/posts/20191219_01/</link>
+      <pubDate>Thu, 19 Dec 2019 15:19:35 +0900</pubDate>
+      
+      <guid>https://kurokuru.github.io/posts/20191219_01/</guid>
+      <description>勉強用途でサクッとRancherを構築する時のメモ🙄 仮想マシンの構築 とにかく手軽にかつ簡単にやりたかったので、Virtual BoxやVM Wh</description>
+    </item>
+    
+  </channel>
+</rss>

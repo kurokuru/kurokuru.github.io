@@ -3,18 +3,38 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://kurokuru.github.io/tags/docker/</loc>
+    <lastmod>2019-12-19T15:19:35+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kurokuru.github.io/tags/kubernetes/</loc>
+    <lastmod>2019-12-19T15:19:35+09:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://kurokuru.github.io/</loc>
-    <lastmod>2019-12-17T10:00:08+09:00</lastmod>
+    <lastmod>2019-12-19T15:19:35+09:00</lastmod>
   </url>
   
   <url>
     <loc>https://kurokuru.github.io/posts/</loc>
-    <lastmod>2019-12-17T10:00:08+09:00</lastmod>
+    <lastmod>2019-12-19T15:19:35+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kurokuru.github.io/tags/rancher/</loc>
+    <lastmod>2019-12-19T15:19:35+09:00</lastmod>
   </url>
   
   <url>
     <loc>https://kurokuru.github.io/tags/</loc>
-    <lastmod>2019-12-17T10:00:08+09:00</lastmod>
+    <lastmod>2019-12-19T15:19:35+09:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://kurokuru.github.io/posts/20191219_01/</loc>
+    <lastmod>2019-12-19T15:19:35+09:00</lastmod>
   </url>
   
   <url>
