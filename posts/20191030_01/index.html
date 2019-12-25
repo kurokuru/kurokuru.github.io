@@ -45,7 +45,7 @@
 <meta property="og:image:width" content="2048">
 <meta property="og:image:height" content="1024">
 
-<meta property="article:published_time" content="2019-10-30 11:44:15 &#43;0900 JST" />
+<meta property="article:published_time" content="2019-10-30 11:44:15 &#43;0900 &#43;0900" />
 
 
 
@@ -126,47 +126,45 @@
   
 
   <div class="post-content">
-    <p><a href="https://kurokuru.github.io/posts/20191029_02/">前回の記事</a>で、大量にSendWebRequestして爆死する問題で、<br />
-ここら辺のコードをカスタマイズできないのかと方法を探っていた。<br />
-というかそもそもの主目的はAddressable Assetsに暗号化機能を組み込む事だったりもするので、<br />
-やっと当初の目的にたどり着いたとも言える。<br />
+    <p><a href="https://kurokuru.github.io/posts/20191029_02/">前回の記事</a>で、大量にSendWebRequestして爆死する問題で、<br>
+ここら辺のコードをカスタマイズできないのかと方法を探っていた。<br>
+というかそもそもの主目的はAddressable Assetsに暗号化機能を組み込む事だったりもするので、<br>
+やっと当初の目的にたどり着いたとも言える。<br>
 とりあえず同じ挙動をするようにしたカスタム版のコードに差し替えてみる。</p>
-
 <p>さて、Addressable Assetsがどういう仕組みなのかはQiitaの</p>
-
 <p><a href="https://qiita.com/k7a/items/b4fd298bcb64dc968ad1">Addressable Assets Systemを完全に理解する</a></p>
-
-<p>あたりに詳しく書いてるけど、AddressableにはResrouceManagerという物がセットで付いてくる。<br />
-Addressableそれ自体はユーザーコードで指定されたラベルとかアセット名をカタログを見ながら<br />
-ResourceLocation(実際のパス)に変換してResourceManagerにぶん投げている。<br />
-ResrouceManagerはそのAssetがどういう方法で読み込むべきかを判別して<br />
-それを各Providerにぶん投げる。<br />
-対応するProviderはAssetのロード方法（ファイルから読み込むとかネットワークから読み込むとか）を知っているので<br />
+<p>あたりに詳しく書いてるけど、AddressableにはResrouceManagerという物がセットで付いてくる。<br>
+Addressableそれ自体はユーザーコードで指定されたラベルとかアセット名をカタログを見ながら<br>
+ResourceLocation(実際のパス)に変換してResourceManagerにぶん投げている。<br>
+ResrouceManagerはそのAssetがどういう方法で読み込むべきかを判別して<br>
+それを各Providerにぶん投げる。<br>
+対応するProviderはAssetのロード方法（ファイルから読み込むとかネットワークから読み込むとか）を知っているので<br>
 実際のロード処理を行う。LoadAssetAsyncとかで返ってくるAsyncOperationはこのProviderが生成したもの。</p>
-
-<p>で、実際にAssetBundleで使われているProviderは何かというと<br />
-UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider<br />
-というクラスである。これのProvideあたりをゴニョゴニョカスタマイズ出来ればいいんだけど当然DLLなので編集することができない。<br />
-今回はカスタムProviderということで、AssetBundleProviderと同じ動きをするProviderを作成して差し替えてみる。<br />
-以下の2つのクラスが依存しているけど、internal classで外部からは呼べないのでこれもカスタム版を用意しなければならない。<br />
-- AssetBundleResource<br />
-- ResourceManagerConfig</p>
-
-<p>今回は逆アセンブルしたコードをベースに3つのクラスを用意した。↑のクラス名を書き換えてるだけ。<br />
-- CustomAssetBundleProvider.cs
-<script src="https://gist.github.com/kurokuru/6989d71ce9e946a86f244720680db4a1.js"></script></p>
-
+<p>で、実際にAssetBundleで使われているProviderは何かというと<br>
+UnityEngine.ResourceManagement.ResourceProviders.AssetBundleProvider<br>
+というクラスである。これのProvideあたりをゴニョゴニョカスタマイズ出来ればいいんだけど当然DLLなので編集することができない。<br>
+今回はカスタムProviderということで、AssetBundleProviderと同じ動きをするProviderを作成して差し替えてみる。<br>
+以下の2つのクラスが依存しているけど、internal classで外部からは呼べないのでこれもカスタム版を用意しなければならない。</p>
 <ul>
-<li><p>CustomAssetBundleResource.cs
-<script src="https://gist.github.com/kurokuru/4152b55dea777ea7cecd1c74195ef175.js"></script></p></li>
-
-<li><p>CustomResourceManagerConfig.cs
-<script src="https://gist.github.com/kurokuru/b89366e2f98532c8501ebc7a8da8eff4.js"></script></p></li>
+<li>AssetBundleResource</li>
+<li>ResourceManagerConfig</li>
 </ul>
-
-<p>これらを用意したら、AddreesableがCustomAssetBundleProviderを使うように設定を変更する。<br />
-各Packed AssetsのAddressableAssetSettingsを開いて、Asset Bundle ProviderをCustomAssetBundleProviderに変更して Build Player Contentする。<br />
-<img src="./image_01.jpg" alt="" />
+<p>今回は逆アセンブルしたコードをベースに3つのクラスを用意した。↑のクラス名を書き換えてるだけ。</p>
+<ul>
+<li>CustomAssetBundleProvider.cs</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>CustomAssetBundleResource.cs</li>
+</ul>
+<!-- raw HTML omitted -->
+<ul>
+<li>CustomResourceManagerConfig.cs</li>
+</ul>
+<!-- raw HTML omitted -->
+<p>これらを用意したら、AddreesableがCustomAssetBundleProviderを使うように設定を変更する。<br>
+各Packed AssetsのAddressableAssetSettingsを開いて、Asset Bundle ProviderをCustomAssetBundleProviderに変更して Build Player Contentする。<br>
+<img src="./image_01.jpg" alt="">
 これでブレークポイントを張ると、カスタム版のProviderが呼ばれているのが確認できる。</p>
 
   </div>

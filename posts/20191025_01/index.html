@@ -45,7 +45,7 @@
 <meta property="og:image:width" content="2048">
 <meta property="og:image:height" content="1024">
 
-<meta property="article:published_time" content="2019-10-25 15:28:40 &#43;0900 JST" />
+<meta property="article:published_time" content="2019-10-25 15:28:40 &#43;0900 &#43;0900" />
 
 
 
@@ -126,88 +126,76 @@
   
 
   <div class="post-content">
-    <p>※何度かやっているうちにプロジェクトを作り直したら、この現象は発生しなくなった。<br />
-おそらく2018.3.7f1から2019.2.7f2に移行した時に発生したと思われる。<br />
-下記以外にも色々な挙動不審な問題が発生したので、<br />
-Addressable Assetsのバージョンを変更した場合は注意したほうがよさそう。<br />
+    <p>※何度かやっているうちにプロジェクトを作り直したら、この現象は発生しなくなった。<br>
+おそらく2018.3.7f1から2019.2.7f2に移行した時に発生したと思われる。<br>
+下記以外にも色々な挙動不審な問題が発生したので、<br>
+Addressable Assetsのバージョンを変更した場合は注意したほうがよさそう。<br>
 他に遭遇した人の為にメモしておく。</p>
-
-<p>挙動をチェックしていたところ、どうも謎な挙動をしていたのでメモ。<br />
+<p>挙動をチェックしていたところ、どうも謎な挙動をしていたのでメモ。<br>
 というのも Addressables.LoadAssetAsync() とかでAssetBundleを開いていると、Caching.ClearCahce()が実際失敗しているのにTrueを返すっぽいのだ 　</p>
-
 <p>検証スクリプト</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#75715e">// TestSprite.cs
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span> System.Collections;
+<span style="color:#66d9ef">using</span> System.Collections.Generic;
+<span style="color:#66d9ef">using</span> UnityEngine;
+<span style="color:#66d9ef">using</span> UnityEngine.AddressableAssets;
+<span style="color:#66d9ef">using</span> UnityEngine.UI;
 
-<pre><code class="language-csharp">// TestSprite.cs
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.UI;
-
-public class TestSprite : MonoBehaviour
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TestSprite</span> : MonoBehaviour
 {
-    [SerializeField]
-    private AssetReference SpriteAsset = default;
+<span style="color:#a6e22e">    [SerializeField]</span>
+    <span style="color:#66d9ef">private</span> AssetReference SpriteAsset = <span style="color:#66d9ef">default</span>;
 
-    // Start is called before the first frame update
-    void Start()
+    <span style="color:#75715e">// Start is called before the first frame update
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">void</span> Start()
     {
         Addressables.LoadAssetAsync&lt;Sprite&gt;(SpriteAsset).Completed +=
             op =&gt; GetComponent&lt;Image&gt;().sprite = op.Result;
     }
 }
-</code></pre>
-
-<p>SpriteAssetにはRemoteLoadPathに設定しているグループの適当な画像を設定している。<br />
+</code></pre></div><p>SpriteAssetにはRemoteLoadPathに設定しているグループの適当な画像を設定している。<br>
 接続先はLocalHostingからダウンロードしてくる</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-csharp" data-lang="csharp"><span style="color:#75715e">// TestManager.cs
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span> System.Collections;
+<span style="color:#66d9ef">using</span> System.Collections.Generic;
+<span style="color:#66d9ef">using</span> UnityEngine;
+<span style="color:#66d9ef">using</span> UnityEngine.UI;
+<span style="color:#66d9ef">using</span> UniRx;
+<span style="color:#66d9ef">using</span> UniRx.Triggers;
 
-<pre><code class="language-csharp">// TestManager.cs
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UniRx;
-using UniRx.Triggers;
-
-public class TestManager : MonoBehaviour
+<span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">TestManager</span> : MonoBehaviour
 {
-    [SerializeField]
-    Button btnClear = default;
+<span style="color:#a6e22e">    [SerializeField]</span>
+    Button btnClear = <span style="color:#66d9ef">default</span>;
 
-    void Start()
+    <span style="color:#66d9ef">void</span> Start()
     {
         btnClear.OnClickAsObservable().Subscribe(x =&gt;
         {
-            var res = Caching.ClearCache();
-            if (res)
+            <span style="color:#66d9ef">var</span> res = Caching.ClearCache();
+            <span style="color:#66d9ef">if</span> (res)
             {
-                Debug.Log( &quot;Clear cache!&quot; );
+                Debug.Log( <span style="color:#e6db74">&#34;Clear cache!&#34;</span> );
             }
-            else
-            { // 失敗しているのに、こっちが呼ばれない
-                Debug.Log( &quot;Cache clear failed.&quot; );
+            <span style="color:#66d9ef">else</span>
+            { <span style="color:#75715e">// 失敗しているのに、こっちが呼ばれない
+</span><span style="color:#75715e"></span>                Debug.Log( <span style="color:#e6db74">&#34;Cache clear failed.&#34;</span> );
             }
         });
     }
 }
-</code></pre>
-
-<p>ボタンが押されるとキャッシュを削除するだけのスクリプト。</p>
-
-<p>当初、Addressable Assetのキャッシュ機構の挙動について調べていて、<br />
-AddressableAssetSettingsの&rdquo;Use Asset Bundle Cahce&rdquo;が有効の場合は<br />
-AssetBundleと一緒らしい（つまり内部的には UnityWebRequest.GetAssetBundle を使っているハズ）みたいなので<br />
-正常にキャッシュがクリアできるかどうか上記のスクリプトを試していた。<br />
+</code></pre></div><p>ボタンが押されるとキャッシュを削除するだけのスクリプト。</p>
+<p>当初、Addressable Assetのキャッシュ機構の挙動について調べていて、<br>
+AddressableAssetSettingsの&quot;Use Asset Bundle Cahce&quot;が有効の場合は<br>
+AssetBundleと一緒らしい（つまり内部的には UnityWebRequest.GetAssetBundle を使っているハズ）みたいなので<br>
+正常にキャッシュがクリアできるかどうか上記のスクリプトを試していた。<br>
 が、思うように削除されずアセットサーバーを落としてもAsset Bundleが読み込まれる始末。</p>
-
-<p>結論から言うと、Asset Bundleを使用しているシーンでキャッシュ削除しようとしていた為に<br />
-単純にAsset Bundleを開いている場合はキャッシュを削除出来なかっただけなのだが、<br />
+<p>結論から言うと、Asset Bundleを使用しているシーンでキャッシュ削除しようとしていた為に<br>
+単純にAsset Bundleを開いている場合はキャッシュを削除出来なかっただけなのだが、<br>
 Caching.ClearCache()がずっとtrueを返していた為、これを検知することが出来なかった。</p>
-
-<p>Unity Forumsにも多分同じ事を投稿している人がいた。<br />
+<p>Unity Forumsにも多分同じ事を投稿している人がいた。<br>
 <a href="https://forum.unity.com/threads/cache-wont-clear-at-first-app-start.667732/">Cache wont clear at first app start</a></p>
-
-<p>シーンを分けAddressables.LoadAssetAsyncする前にClearCacheを実行すると正常にキャッシュをクリアすることが出来た。<br />
+<p>シーンを分けAddressables.LoadAssetAsyncする前にClearCacheを実行すると正常にキャッシュをクリアすることが出来た。<br>
 （サーバーを落とした状態で読み込みに失敗する）
 しかしこれはバグなのか、キャッシュクリアは違う方法を使わないといけないのか謎である。</p>
 

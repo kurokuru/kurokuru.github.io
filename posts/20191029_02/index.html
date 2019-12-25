@@ -45,7 +45,7 @@
 <meta property="og:image:width" content="2048">
 <meta property="og:image:height" content="1024">
 
-<meta property="article:published_time" content="2019-10-29 19:21:12 &#43;0900 JST" />
+<meta property="article:published_time" content="2019-10-29 19:21:12 &#43;0900 &#43;0900" />
 
 
 
@@ -126,32 +126,29 @@
   
 
   <div class="post-content">
-    <p>Pack Separatelyを使うときは注意だね😉って話。<br />
-基本的にAddressable AssetsはAssets Group単位で.bundleファイルになるが、<br />
-Assets GroupのSettingsのBundle Modeで Pack Separately を設定するとAsset単位で<br />
-.bundleを生成してくれる。<br />
-まとめるか/分けるかは開発時の運用次第だが、まとめるとデータ更新の際に無駄なデータまで更新する必要があるため<br />
+    <p>Pack Separatelyを使うときは注意だね😉って話。<br>
+基本的にAddressable AssetsはAssets Group単位で.bundleファイルになるが、<br>
+Assets GroupのSettingsのBundle Modeで Pack Separately を設定するとAsset単位で<br>
+.bundleを生成してくれる。<br>
+まとめるか/分けるかは開発時の運用次第だが、まとめるとデータ更新の際に無駄なデータまで更新する必要があるため<br>
 1Asset=1ファイルとするAssetBundle運用も結構存在する。</p>
-
-<p>ここでふと気になって実験してみたら、見事に引っかかったのでメモしておく。<br />
-結論から言うと、RemoteにあるAssetとDownloadDependenciesとかで全Assetを読み込もうとすると片っ端から<br />
-一気にSendWebRequestしてしうまうので、大量すぎるとネットワークが切断されて動かなくなる。<br />
-<img src="./image_01.jpg" alt="" />
-こんな感じのやつをPack Separatelyで1ファイル=1Assetにして<br />
-DownloadDependenciesAsync(&ldquo;preload&rdquo;)とかすると<br />
-<img src="./image_02.jpg" alt="" />
+<p>ここでふと気になって実験してみたら、見事に引っかかったのでメモしておく。<br>
+結論から言うと、RemoteにあるAssetとDownloadDependenciesとかで全Assetを読み込もうとすると片っ端から<br>
+一気にSendWebRequestしてしうまうので、大量すぎるとネットワークが切断されて動かなくなる。<br>
+<img src="./image_01.jpg" alt="">
+こんな感じのやつをPack Separatelyで1ファイル=1Assetにして<br>
+DownloadDependenciesAsync(&ldquo;preload&rdquo;)とかすると<br>
+<img src="./image_02.jpg" alt="">
 こんな感じで一気にSendWebRequestしてConnection Lostしてしまう🤮</p>
-
-<p>多分コード的にはUnityEngine.ResourceManagement.ResourceProvidersのAssetBundleResource<br />
+<p>多分コード的にはUnityEngine.ResourceManagement.ResourceProvidersのAssetBundleResource<br>
 を使ってると思うんだけど、
-<img src="./image_03.jpg" alt="" />
-という風に問答無用でSendWebRequestしちゃってるので詰まって死ぬ。<br />
-なのでPack Separatelyしたときはラベル指定でDownloadDependenciesするようなことは避けた方がいい。<br />
-ていうか1ロードにせよ、それの依存関係の数とか把握してないのでPack Separately自体が割と危険なので使えないかなあ・・・。<br />
+<img src="./image_03.jpg" alt="">
+という風に問答無用でSendWebRequestしちゃってるので詰まって死ぬ。<br>
+なのでPack Separatelyしたときはラベル指定でDownloadDependenciesするようなことは避けた方がいい。<br>
+ていうか1ロードにせよ、それの依存関係の数とか把握してないのでPack Separately自体が割と危険なので使えないかなあ・・・。<br>
 こういうバグは中々発生条件が微妙だったりして気づかない。</p>
-
-<p>まぁ原理的にはPack Separately関係なく発生しうるバグなので根本から直した方がいいんだけど・・・🤔<br />
-自分のコードだったらasync/awaitとか使えそうなんだけどこれどうしたものか😅<br />
+<p>まぁ原理的にはPack Separately関係なく発生しうるバグなので根本から直した方がいいんだけど・・・🤔<br>
+自分のコードだったらasync/awaitとか使えそうなんだけどこれどうしたものか😅<br>
 カスタムできるのかなぁ？</p>
 
   </div>

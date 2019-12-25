@@ -45,7 +45,7 @@
 <meta property="og:image:width" content="2048">
 <meta property="og:image:height" content="1024">
 
-<meta property="article:published_time" content="2019-12-19 15:19:35 &#43;0900 JST" />
+<meta property="article:published_time" content="2019-12-19 15:19:35 &#43;0900 &#43;0900" />
 
 
 
@@ -130,53 +130,39 @@
   
 
   <div class="post-content">
-    
-
-<p>勉強用途でサクッとRancherを構築する時のメモ🙄</p>
-
-<h2 id="仮想マシンの構築">仮想マシンの構築</h2>
-
-<p>とにかく手軽にかつ簡単にやりたかったので、Virtual BoxやVM Whereなどは使わずに<br />
-Windows 10のPro以上なら標準で使えるHyper Vを使う<br />
-仮想マシンを起動する前に、仮想スイッチマネージャで外部スイッチを作成してブリッジ接続できるようにしておく<br />
-こうすることで、ホストマシンのLANと同じネットワークにつながる<br />
+    <p>勉強用途でサクッとRancherを構築する時のメモ🙄</p>
+<h2 id="heading">仮想マシンの構築 </h2>
+<p>とにかく手軽にかつ簡単にやりたかったので、Virtual BoxやVM Whereなどは使わずに<br>
+Windows 10のPro以上なら標準で使えるHyper Vを使う<br>
+仮想マシンを起動する前に、仮想スイッチマネージャで外部スイッチを作成してブリッジ接続できるようにしておく<br>
+こうすることで、ホストマシンのLANと同じネットワークにつながる<br>
 （仮想マシンにホストが使っているDHCPからIPが割り振られる）</p>
-
-<p>OSはUbuntuなどはインストールに時間が掛かるので、最初からDockerが入っているRancher OSを採用<br />
-UEFIに対応してないっぽいので設定は第1世代じゃないとRancher OSが起動しない模様<br />
+<p>OSはUbuntuなどはインストールに時間が掛かるので、最初からDockerが入っているRancher OSを採用<br>
+UEFIに対応してないっぽいので設定は第1世代じゃないとRancher OSが起動しない模様<br>
 GithubのリリースにHyperV用のISO(rancheros-hyperv.iso)があるのでそれを使うとよさそう</p>
-
-<h2 id="rancher-osインストール">Rancher OSインストール</h2>
-
-<p>本来はcloud-config.ymlで色々設定するけど面倒なのでこれで一撃インストール😘<br />
-<code>sudo ros install -d /dev/sda --append &quot;rancher.password=password&quot;</code><br />
-rancher.password を忘れるとログインできなくなるので注意😭<br />
+<h2 id="rancher-os">Rancher OSインストール</h2>
+<p>本来はcloud-config.ymlで色々設定するけど面倒なのでこれで一撃インストール😘<br>
+<code>sudo ros install -d /dev/sda --append &quot;rancher.password=password&quot;</code><br>
+rancher.password を忘れるとログインできなくなるので注意😭<br>
 必要最低限の環境でかつ、SSHとDockerも自動でインストールされる</p>
-
-<h2 id="rancherのインストール">Rancherのインストール</h2>
-
-<p>Rancher OSを入れて再起動したら、既にDockerが入っているので次のコマンドでRancherをインストールする<br />
+<h2 id="rancher">Rancherのインストール</h2>
+<p>Rancher OSを入れて再起動したら、既にDockerが入っているので次のコマンドでRancherをインストールする<br>
 <code>docker run -d --restart=unless-stopped -p 80:80 -p 443:443 rancher/rancher</code></p>
-
-<h2 id="クラスターの追加">クラスターの追加</h2>
-
-<p>Rancherをインストールしたらadminアカウントを適当に設定して<br />
-クラスターを追加 -&gt; カスタム -&gt; 諸々記入して次へ -&gt; etcd, Control, Workerにチェックを入れてコマンドをコピーする<br />
-クラスターオプションはテスト目的ならデフォルトでいい<br />
-コピーしたコマンドをゲストマシンで実行するとRancherが認識してKubernetesを構築してくれる<br />
-しばらく待って、クラスターの状態がActiveになっていれば成功<br />
-あとはリソース- &gt; ワークロードからデプロイでDockerコンテナをデプロイできる<br />
+<h2 id="heading-1">クラスターの追加</h2>
+<p>Rancherをインストールしたらadminアカウントを適当に設定して<br>
+クラスターを追加 -&gt; カスタム -&gt; 諸々記入して次へ -&gt; etcd, Control, Workerにチェックを入れてコマンドをコピーする<br>
+クラスターオプションはテスト目的ならデフォルトでいい<br>
+コピーしたコマンドをゲストマシンで実行するとRancherが認識してKubernetesを構築してくれる<br>
+しばらく待って、クラスターの状態がActiveになっていれば成功<br>
+あとはリソース- &gt; ワークロードからデプロイでDockerコンテナをデプロイできる<br>
 Kubernetesが動いてるのでYAMLをインポートすることも可能</p>
-
-<h2 id="さいごに">さいごに</h2>
-
-<p>Rancherは総合管理するServerと各Kubernetesクラスタを管理するAgentに分かれるが、一応一緒のゲストマシンに入れることもできる<br />
+<h2 id="heading-2">さいごに</h2>
+<p>Rancherは総合管理するServerと各Kubernetesクラスタを管理するAgentに分かれるが、一応一緒のゲストマシンに入れることもできる<br>
 また既存のKubernetesをインポートすることもできるので、minikubeなどをクラスタとして登録することも可能</p>
-
-<p>ただRancherは元々大規模クラスタの管理用で個人環境程度の規模を管理するには少し重たいのと、<br />
-ServerとAgentが一緒のマシンにあるとアップデートのときに色々大変なので<br />
-おうちクラウドしたいだけとかRancherやKubernetesの勉強目的でなければ<br />
-Portainerみたいな軽めのDockerGUI管理ツールもおすすめ😀<br />
+<p>ただRancherは元々大規模クラスタの管理用で個人環境程度の規模を管理するには少し重たいのと、<br>
+ServerとAgentが一緒のマシンにあるとアップデートのときに色々大変なので<br>
+おうちクラウドしたいだけとかRancherやKubernetesの勉強目的でなければ<br>
+Portainerみたいな軽めのDockerGUI管理ツールもおすすめ😀<br>
 こちらも時間があれば試してみたい😤</p>
 
   </div>

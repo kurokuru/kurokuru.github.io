@@ -45,7 +45,7 @@
 <meta property="og:image:width" content="2048">
 <meta property="og:image:height" content="1024">
 
-<meta property="article:published_time" content="2019-12-17 10:00:08 &#43;0900 JST" />
+<meta property="article:published_time" content="2019-12-17 10:00:08 &#43;0900 &#43;0900" />
 
 
 
@@ -126,55 +126,50 @@
   
 
   <div class="post-content">
-    <p>ソースコード検索エンジンのSourcetrailが無償化され、OSSとしてGitHub上で公開された模様<br />
-これは大きなプロジェクトのコードからデータベースを作って、依存性グラフなどの図や検索機能を提供して<br />
-コード検索や、実装の理解に役立つツールである<br />
-この類のツールはVisual Studioのクラスダイアグラム？だったかあるんだけど、Ultimateでしか使えなかったり<br />
+    <p>ソースコード検索エンジンのSourcetrailが無償化され、OSSとしてGitHub上で公開された模様<br>
+これは大きなプロジェクトのコードからデータベースを作って、依存性グラフなどの図や検索機能を提供して<br>
+コード検索や、実装の理解に役立つツールである<br>
+この類のツールはVisual Studioのクラスダイアグラム？だったかあるんだけど、Ultimateでしか使えなかったり<br>
 有料のものが殆ど。GNU Globalとかはマニアックな人は使ったことあるかもしれない。</p>
-
-<p>知らない大規模プロジェクトでの作業はソースコードの理解や挙動の確認に90％近くの時間が取られてしまうので<br />
+<p>知らない大規模プロジェクトでの作業はソースコードの理解や挙動の確認に90％近くの時間が取られてしまうので<br>
 こういったツールが無償になるのはとてもうれしい😊
-ということで早速使ってみる。<br />
+ということで早速使ってみる。<br>
 リポジトリはGitHub</p>
-
 <p><a href="https://github.com/CoatiSoftware/Sourcetrail">https://github.com/CoatiSoftware/Sourcetrail</a></p>
-
 <p>OSSなので自分でビルドすることもできるが、今回はReleaseから
-Sourcetrail_2019_4_61_Windows_64bit_Installer.zip<br />
-をインストールした<br />
-今回はC++のOSSである<a href="https://github.com/nlohmann/json">JSON for Modern C++</a>を使って解析してみる<br />
+Sourcetrail_2019_4_61_Windows_64bit_Installer.zip<br>
+をインストールした<br>
+今回はC++のOSSである<a href="https://github.com/nlohmann/json">JSON for Modern C++</a>を使って解析してみる<br>
 (ちなみにこのライブラリは使ったことない😅)</p>
-
-<p>とりあえず起動するとこんな感じ<br />
-<img src="./image_01.jpg" alt="" /><br />
-New Projectを選択<br />
-<img src="./image_02.jpg" alt="" /><br />
-Sourcetrail Project Nameに適当なプロジェクト名、<br />
-Sourcetrail Project Locationはプロジェクトの保存先を入れる。<br />
-そしたらAdd Srouce Groupを押して、<br />
-<img src="./image_03.jpg" alt="" /><br />
-今回はC++のVisual Studioプロジェクトから使ってみたいので<br />
-<a href="https://github.com/nlohmann/json">JSON for Modern C++</a>を落としてきて、CMakeでソリューションを生成する。<br />
-(ここらへんは脱線するので割愛)<br />
-C/C++ from Visual Studioを選択して、<br />
-<img src="./image_04.jpg" alt="" />
-この状態でソリューション(今回ならnlohmann_json.sln)を開いて、Create Compilation Databaseを押す。<br />
-<img src="./image_05.jpg" alt="" /><br />
-Visual Studio側にこんなウィンドウが出てくるので、とりあえずDe/Select Allで全部のプロジェクトを選択 -&gt; Createする。<br />
-オプションは大体デフォルトでいいけど、適宜変えてもよい。<br />
-ちなみに生成が終わると<br />
-<img src="./image_06.jpg" alt="" /><br />
+<p>とりあえず起動するとこんな感じ<br>
+<img src="./image_01.jpg" alt=""><br>
+New Projectを選択<br>
+<img src="./image_02.jpg" alt=""><br>
+Sourcetrail Project Nameに適当なプロジェクト名、<br>
+Sourcetrail Project Locationはプロジェクトの保存先を入れる。<br>
+そしたらAdd Srouce Groupを押して、<br>
+<img src="./image_03.jpg" alt=""><br>
+今回はC++のVisual Studioプロジェクトから使ってみたいので<br>
+<a href="https://github.com/nlohmann/json">JSON for Modern C++</a>を落としてきて、CMakeでソリューションを生成する。<br>
+(ここらへんは脱線するので割愛)<br>
+C/C++ from Visual Studioを選択して、<br>
+<img src="./image_04.jpg" alt="">
+この状態でソリューション(今回ならnlohmann_json.sln)を開いて、Create Compilation Databaseを押す。<br>
+<img src="./image_05.jpg" alt=""><br>
+Visual Studio側にこんなウィンドウが出てくるので、とりあえずDe/Select Allで全部のプロジェクトを選択 -&gt; Createする。<br>
+オプションは大体デフォルトでいいけど、適宜変えてもよい。<br>
+ちなみに生成が終わると<br>
+<img src="./image_06.jpg" alt=""><br>
 というウィンドウが表示されるのでImportを押すとComplilation Databaseのパスを勝手にセットしてくれる。</p>
-
-<p>Header Files &amp; Directories to Indexは外部依存のヘッダーの取り込みをどうするか設定するのだが、<br />
-とりあえずcheck allで全部入れといて問題ない。<br />
-Nextすると追加されるので、Createを押す。<br />
-<img src="./image_07.jpg" alt="" /><br />
-All filesを選んでStart。茶でも飲んで気長に待つ。<br />
-出来上がるとoverviewが表示されるので、あとは検索したりして遊ぶ。<br />
-<img src="./image_08.jpg" alt="" /><br />
-検索が爆速でTypeやクラス検索が出来て便利。<br />
-構造も見やすく、クラスの場合は下が継承元、上が継承先、左が参照元、右が参照先&hellip;<br />
+<p>Header Files &amp; Directories to Indexは外部依存のヘッダーの取り込みをどうするか設定するのだが、<br>
+とりあえずcheck allで全部入れといて問題ない。<br>
+Nextすると追加されるので、Createを押す。<br>
+<img src="./image_07.jpg" alt=""><br>
+All filesを選んでStart。茶でも飲んで気長に待つ。<br>
+出来上がるとoverviewが表示されるので、あとは検索したりして遊ぶ。<br>
+<img src="./image_08.jpg" alt=""><br>
+検索が爆速でTypeやクラス検索が出来て便利。<br>
+構造も見やすく、クラスの場合は下が継承元、上が継承先、左が参照元、右が参照先&hellip;<br>
 という風に分かりやすく整理されている。</p>
 
   </div>
